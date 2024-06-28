@@ -1,12 +1,16 @@
 use std::env;
-use diesel::{Connection, PgConnection, r2d2, RunQueryDsl};
-use diesel::r2d2::ConnectionManager;
+use diesel::prelude::*;
 use dotenvy::dotenv;
 use anyhow::Error;
-use crate::models::Post;
-use crate::schema::posts::dsl::posts;
+use diesel::associations::HasTable;
+use diesel::r2d2;
+use diesel::r2d2::{ConnectionManager};
+use crate::models::{Company, Job, JobWithCompany};
+use crate::schema::companies::dsl::companies;
+use crate::schema::jobs::dsl::jobs;
 
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+// pub type DieselResult<T> = Result<T, diesel::result::Error>;
 
 #[derive(Clone)]
 pub struct Database {
@@ -25,19 +29,40 @@ impl Database {
         Database { pool }
     }
 
-    pub fn create_post(&self, post: Post) -> Result<Post, Error> {
-        diesel::insert_into(posts)
-            .values(&post)
-            .execute(&mut self.pool.get().unwrap())?;
-        Ok(post)
+    pub fn get_jobs_and_companies(&self) -> Result<Vec<JobWithCompany>, Error> {
+        Ok(jobs
+            .inner_join(companies)
+            .load::<(Job, Company)>(&mut self.pool.get()?)?
+            .into_iter()
+            .map(|(job, company)| JobWithCompany { job, company })
+            .collect()
+        )
+    }
+
+    pub fn get_jobs(&self) -> Result<Vec<Job>, Error> {
+        Ok(jobs.load(&mut self.pool.get()?)?)
+    }
+
+    pub fn insert_job(&self, job: Job) -> Result<Job, Error> {
+        Ok(job
+            .insert_into(jobs)
+            .get_result(&mut self.pool.get()?)?
+        )
+    }
+
+    pub fn find_job_by_id(&self, id: i32) -> Result<JobWithCompany, Error> {
+        todo!()
+        // Ok(jobs
+        //     .inner_join(companies)
+        //     // .load::<(Job, Company)>(&mut self.pool.get()?)?
+        //     .find(id)
+        //     .into_iter()
+        //     .map(|(job, company)| JobWithCompany { job, company })
+        //     .first(&mut self.pool.get()?)?
+        // )
+    }
+
+    pub fn get_skills(&self, job_id: i32) -> Result<Vec<String>, Error> {
+        todo!()
     }
 }
-
-// pub fn establish_connection() -> PgConnection {
-//     dotenv().ok();
-//
-//     let database_url = env::var("DATABASE_URL").expect("Database URL must be set.");
-//     PgConnection::establish(&database_url)
-//         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
-// }
-//

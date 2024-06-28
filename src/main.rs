@@ -7,6 +7,7 @@ use crate::db::Database;
 
 mod api;
 mod db;
+/// Structs that strictly represent DB relations.
 mod models;
 mod schema;
 
