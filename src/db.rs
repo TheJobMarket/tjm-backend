@@ -1,16 +1,16 @@
-use diesel::prelude::*;
-use dotenvy::dotenv;
-use anyhow::{Context, Error};
-use diesel::r2d2;
-use diesel::r2d2::{ConnectionManager};
 use crate::models::{Company, CompanyReq, Job, JobReq, JobRes};
 use crate::schema::companies::dsl::companies;
+use anyhow::{Context, Error};
+use diesel::prelude::*;
+use diesel::r2d2;
+use diesel::r2d2::ConnectionManager;
+use dotenvy::dotenv;
 
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[derive(Clone)]
 pub struct Database {
-    pool: DBPool
+    pool: DBPool,
 }
 
 impl Database {
@@ -33,13 +33,12 @@ impl Database {
             .load::<(Job, Company)>(&mut self.pool.get()?)?
             .into_iter()
             .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))
-            .collect()
-        )
+            .collect())
     }
 
     pub fn insert_job(&self, job: JobReq) -> Result<JobRes, Error> {
-        use crate::schema::jobs::dsl::*;
         use crate::schema::companies::dsl::*;
+        use crate::schema::jobs::dsl::*;
 
         let conn = &mut self.pool.get()?;
         let _company = companies
@@ -50,20 +49,18 @@ impl Database {
         Ok(job
             .insert_into(jobs)
             .get_result(conn)
-            .map(|_job| JobRes::build_from(_job, _company))?
-        )
+            .map(|_job| JobRes::build_from(_job, _company))?)
     }
 
     pub fn find_job_by_id(&self, id: i32) -> Result<JobRes, Error> {
-        use crate::schema::jobs::dsl::{jobs, id as jobs_id};
         use crate::schema::companies::dsl::companies;
+        use crate::schema::jobs::dsl::{id as jobs_id, jobs};
 
         Ok(jobs
             .inner_join(companies)
             .filter(jobs_id.eq(id))
             .first::<(Job, Company)>(&mut self.pool.get()?)
-            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))?
-        )
+            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))?)
     }
 
     pub fn insert_company(&self, _company: CompanyReq) -> Result<Company, Error> {
@@ -71,8 +68,7 @@ impl Database {
 
         Ok(_company
             .insert_into(companies)
-            .get_result(&mut self.pool.get()?)?
-        )
+            .get_result(&mut self.pool.get()?)?)
     }
 
     pub fn get_companies(&self) -> Result<Vec<Company>, Error> {

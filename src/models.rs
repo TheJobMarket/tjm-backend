@@ -14,7 +14,7 @@ pub struct Job {
     pub pay: Option<String>,
     pub job_location: String,
     pub remote: bool,
-    pub job_type: String
+    pub job_type: String,
 }
 
 #[derive(Insertable, Queryable, Selectable, Serialize, Deserialize)]
@@ -27,7 +27,7 @@ pub struct JobReq {
     pub pay: Option<String>,
     pub job_location: String,
     pub remote: bool,
-    pub job_type: String
+    pub job_type: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -40,7 +40,7 @@ pub struct JobRes {
     pub pay: Option<String>,
     pub job_location: String,
     pub remote: bool,
-    pub job_type: String
+    pub job_type: String,
 }
 
 #[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Clone)]
@@ -51,7 +51,7 @@ pub struct Company {
     pub name: String,
     pub website: Option<String>,
     pub logo_cid: Option<String>,
-    pub description: Option<String>
+    pub description: Option<String>,
 }
 
 #[derive(Insertable, Serialize, Deserialize)]
@@ -61,7 +61,7 @@ pub struct CompanyReq {
     pub name: String,
     pub website: Option<String>,
     pub logo_cid: Option<String>,
-    pub description: Option<String>
+    pub description: Option<String>,
 }
 
 impl JobRes {
