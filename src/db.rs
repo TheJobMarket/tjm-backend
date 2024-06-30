@@ -1,16 +1,12 @@
-use std::env;
 use diesel::prelude::*;
 use dotenvy::dotenv;
-use anyhow::Error;
-use diesel::associations::HasTable;
+use anyhow::{Context, Error};
 use diesel::r2d2;
 use diesel::r2d2::{ConnectionManager};
-use crate::models::{Company, Job, JobWithCompany};
+use crate::models::{Company, CompanyReq, Job, JobReq, JobRes};
 use crate::schema::companies::dsl::companies;
-use crate::schema::jobs::dsl::jobs;
 
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-// pub type DieselResult<T> = Result<T, diesel::result::Error>;
 
 #[derive(Clone)]
 pub struct Database {
@@ -29,40 +25,63 @@ impl Database {
         Database { pool }
     }
 
-    pub fn get_jobs_and_companies(&self) -> Result<Vec<JobWithCompany>, Error> {
+    pub fn get_jobs(&self) -> Result<Vec<JobRes>, Error> {
+        use crate::schema::jobs::dsl::*;
+
         Ok(jobs
             .inner_join(companies)
             .load::<(Job, Company)>(&mut self.pool.get()?)?
             .into_iter()
-            .map(|(job, company)| JobWithCompany { job, company })
+            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))
             .collect()
         )
     }
 
-    pub fn get_jobs(&self) -> Result<Vec<Job>, Error> {
-        Ok(jobs.load(&mut self.pool.get()?)?)
-    }
+    pub fn insert_job(&self, job: JobReq) -> Result<JobRes, Error> {
+        use crate::schema::jobs::dsl::*;
+        use crate::schema::companies::dsl::*;
 
-    pub fn insert_job(&self, job: Job) -> Result<Job, Error> {
+        let conn = &mut self.pool.get()?;
+        let _company = companies
+            .find(job.company)
+            .first::<Company>(conn)
+            .context("Job's company information not found")?;
+
         Ok(job
             .insert_into(jobs)
+            .get_result(conn)
+            .map(|_job| JobRes::build_from(_job, _company))?
+        )
+    }
+
+    pub fn find_job_by_id(&self, id: i32) -> Result<JobRes, Error> {
+        use crate::schema::jobs::dsl::{jobs, id as jobs_id};
+        use crate::schema::companies::dsl::companies;
+
+        Ok(jobs
+            .inner_join(companies)
+            .filter(jobs_id.eq(id))
+            .first::<(Job, Company)>(&mut self.pool.get()?)
+            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))?
+        )
+    }
+
+    pub fn insert_company(&self, _company: CompanyReq) -> Result<Company, Error> {
+        use crate::schema::companies::dsl::*;
+
+        Ok(_company
+            .insert_into(companies)
             .get_result(&mut self.pool.get()?)?
         )
     }
 
-    pub fn find_job_by_id(&self, id: i32) -> Result<JobWithCompany, Error> {
-        todo!()
-        // Ok(jobs
-        //     .inner_join(companies)
-        //     // .load::<(Job, Company)>(&mut self.pool.get()?)?
-        //     .find(id)
-        //     .into_iter()
-        //     .map(|(job, company)| JobWithCompany { job, company })
-        //     .first(&mut self.pool.get()?)?
-        // )
+    pub fn get_companies(&self) -> Result<Vec<Company>, Error> {
+        use crate::schema::companies::dsl::*;
+
+        Ok(companies.load(&mut self.pool.get()?)?)
     }
 
-    pub fn get_skills(&self, job_id: i32) -> Result<Vec<String>, Error> {
+    pub fn _get_skills(&self, _job_id: i32) -> Result<Vec<String>, Error> {
         todo!()
     }
 }
