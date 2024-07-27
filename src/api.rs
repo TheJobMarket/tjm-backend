@@ -2,6 +2,9 @@ use crate::db::Database;
 use crate::models::{CompanyReq, JobReq};
 use actix_web::web::Data;
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
+use actix_web::guard::Head;
+use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, HeaderName};
+use env_logger::builder;
 
 pub fn api_routes() -> Scope {
     web::scope("")
@@ -27,7 +30,12 @@ async fn echo(req_body: String) -> impl Responder {
 #[get("/jobs")]
 async fn get_jobs(db: Data<Database>) -> impl Responder {
     match db.get_jobs() {
-        Ok(jobs) => HttpResponse::Ok().json(jobs),
+        Ok(jobs) => {
+            HttpResponse::Ok()
+                // TODO reduce origins allowed
+                .insert_header((HeaderName::from(ACCESS_CONTROL_ALLOW_ORIGIN), "*"))
+                .json(jobs)
+        },
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }

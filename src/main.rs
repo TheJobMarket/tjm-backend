@@ -11,9 +11,13 @@ mod schema;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let db = Data::new(Database::new());
+    // Port on which API requests should be made.
+    let port = 8080;
+
+    println!("Listening on port {port}");
 
     HttpServer::new(move || App::new().service(api_routes()).app_data(db.clone()))
-        .bind(("127.0.0.1", 8080))?
+        .bind(("127.0.0.1", port))?
         .run()
         .await
 }

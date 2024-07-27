@@ -18,6 +18,7 @@ pub struct Job {
 }
 
 #[derive(Insertable, Queryable, Selectable, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = crate::schema::jobs)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct JobReq {
@@ -31,6 +32,7 @@ pub struct JobReq {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct JobRes {
     pub id: i32,
     pub date_posted: NaiveDate,
@@ -44,6 +46,7 @@ pub struct JobRes {
 }
 
 #[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = crate::schema::companies)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Company {
@@ -55,6 +58,7 @@ pub struct Company {
 }
 
 #[derive(Insertable, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = crate::schema::companies)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct CompanyReq {
