@@ -6,6 +6,8 @@ use actix_web::guard::Head;
 use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, HeaderName};
 use env_logger::builder;
 
+const CLIENT_PORT: i32 = 3000;
+
 pub fn api_routes() -> Scope {
     web::scope("")
         .service(hello)
@@ -32,8 +34,10 @@ async fn get_jobs(db: Data<Database>) -> impl Responder {
     match db.get_jobs() {
         Ok(jobs) => {
             HttpResponse::Ok()
-                // TODO reduce origins allowed
-                .insert_header((HeaderName::from(ACCESS_CONTROL_ALLOW_ORIGIN), "*"))
+                .insert_header(
+                    (HeaderName::from(ACCESS_CONTROL_ALLOW_ORIGIN),
+                     format!("http://localhost:{CLIENT_PORT}"))
+                )
                 .json(jobs)
         },
         Err(_) => HttpResponse::InternalServerError().finish(),
@@ -43,7 +47,14 @@ async fn get_jobs(db: Data<Database>) -> impl Responder {
 #[get("/jobs/{id}")]
 async fn get_job_by_id(db: Data<Database>, job_id: web::Path<i32>) -> impl Responder {
     match db.find_job_by_id(job_id.into_inner()) {
-        Ok(job) => HttpResponse::Ok().json(job),
+        Ok(job) => {
+            HttpResponse::Ok()
+                .insert_header(
+                    (HeaderName::from(ACCESS_CONTROL_ALLOW_ORIGIN),
+                     format!("http://localhost:{CLIENT_PORT}"))
+                )
+                .json(job)
+        },
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
