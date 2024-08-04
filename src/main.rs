@@ -2,11 +2,13 @@ use crate::api::api_routes;
 use crate::db::Database;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+use crate::utils::generate_url_id;
 
 mod api;
 mod db;
 mod models;
 mod schema;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

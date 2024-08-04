@@ -1,10 +1,11 @@
-use crate::models::{Company, CompanyReq, Job, JobReq, JobRes};
+use crate::models::{Job, JobRes, JobReq, Company, CompanyReq};
 use crate::schema::companies::dsl::companies;
 use anyhow::{Context, Error};
 use diesel::prelude::*;
 use diesel::r2d2;
 use diesel::r2d2::ConnectionManager;
 use dotenvy::dotenv;
+use crate::utils;
 
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -42,17 +43,29 @@ impl Database {
 
         let conn = &mut self.pool.get()?;
         let _company = companies
-            .find(job.company)
+            .find(&job.company_id)
             .first::<Company>(conn)
-            .context("Job's company information not found")?;
+            .context("Company linked to job not found")?;
 
-        Ok(job
+        let _job = Job {
+            id: utils::generate_url_id(&job.title),
+            date_posted: None,
+            title: job.title,
+            description: job.description,
+            company_id: job.company_id,
+            pay: job.pay,
+            location: job.location,
+            remote: job.remote,
+            job_type: job.job_type,
+        };
+
+        Ok(_job
             .insert_into(jobs)
             .get_result(conn)
-            .map(|_job| JobRes::build_from(_job, _company))?)
+            .map(|j| JobRes::build_from(j, _company))?)
     }
 
-    pub fn find_job_by_id(&self, id: i32) -> Result<JobRes, Error> {
+    pub fn find_job_by_id(&self, id: String) -> Result<JobRes, Error> {
         use crate::schema::companies::dsl::companies;
         use crate::schema::jobs::dsl::{id as jobs_id, jobs};
 
@@ -65,6 +78,15 @@ impl Database {
 
     pub fn insert_company(&self, _company: CompanyReq) -> Result<Company, Error> {
         use crate::schema::companies::dsl::*;
+
+        let _company = Company {
+            id: utils::generate_url_id(&_company.name),
+            date_added: None,
+            name: _company.name,
+            website: _company.website,
+            logo_cid: _company.logo_cid,
+            description: _company.description,
+        };
 
         Ok(_company
             .insert_into(companies)

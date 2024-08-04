@@ -1,10 +1,10 @@
 use crate::db::Database;
-use crate::models::{CompanyReq, JobReq};
 use actix_web::web::Data;
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use actix_web::guard::Head;
 use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, HeaderName};
 use env_logger::builder;
+use crate::models::{JobReq, JobRes, Job, CompanyReq};
 
 const CLIENT_PORT: i32 = 3000;
 
@@ -45,7 +45,7 @@ async fn get_jobs(db: Data<Database>) -> impl Responder {
 }
 
 #[get("/jobs/{id}")]
-async fn get_job_by_id(db: Data<Database>, job_id: web::Path<i32>) -> impl Responder {
+async fn get_job_by_id(db: Data<Database>, job_id: web::Path<String>) -> impl Responder {
     match db.find_job_by_id(job_id.into_inner()) {
         Ok(job) => {
             HttpResponse::Ok()

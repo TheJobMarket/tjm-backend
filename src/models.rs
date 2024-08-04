@@ -2,65 +2,63 @@ use chrono::NaiveDate;
 use diesel::{Insertable, Queryable, Selectable};
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable, Insertable, Clone)]
+// TODO: just make different types for request, tuple, and response and then merge any if possible.
+
+#[derive(Insertable, Queryable, Selectable)]
 #[diesel(table_name = crate::schema::jobs)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Job {
-    pub id: i32,
-    pub date_posted: NaiveDate,
+    pub id: String,
+    pub date_posted: Option<NaiveDate>,
     pub title: String,
     pub description: Option<String>,
-    pub company: i32,
+    pub company_id: String,
     pub pay: Option<String>,
-    pub job_location: String,
+    pub location: String,
     pub remote: bool,
     pub job_type: String,
 }
 
-#[derive(Insertable, Queryable, Selectable, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[diesel(table_name = crate::schema::jobs)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct JobReq {
     pub title: String,
     pub description: Option<String>,
-    pub company: i32,
+    pub company_id: String,
     pub pay: Option<String>,
-    pub job_location: String,
+    pub location: String,
     pub remote: bool,
     pub job_type: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct JobRes {
-    pub id: i32,
+    pub id: String,
     pub date_posted: NaiveDate,
     pub title: String,
     pub description: Option<String>,
     pub company: Company,
     pub pay: Option<String>,
-    pub job_location: String,
+    pub location: String,
     pub remote: bool,
     pub job_type: String,
 }
 
-#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
+#[derive(Queryable, Selectable, Insertable, Serialize)]
 #[diesel(table_name = crate::schema::companies)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Company {
-    pub id: i32,
+    pub id: String,
+    pub date_added: Option<NaiveDate>,
     pub name: String,
     pub website: Option<String>,
     pub logo_cid: Option<String>,
     pub description: Option<String>,
 }
 
-#[derive(Insertable, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[diesel(table_name = crate::schema::companies)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct CompanyReq {
     pub name: String,
     pub website: Option<String>,
@@ -72,12 +70,12 @@ impl JobRes {
     pub fn build_from(job: Job, company: Company) -> JobRes {
         JobRes {
             id: job.id,
-            date_posted: job.date_posted,
+            date_posted: job.date_posted.expect("There should be a default value"),
             title: job.title,
             description: job.description,
             company,
             pay: job.pay,
-            job_location: job.job_location,
+            location: job.location,
             remote: job.remote,
             job_type: job.job_type,
         }
