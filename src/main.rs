@@ -4,11 +4,11 @@ use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use crate::utils::generate_url_id;
 
-mod api;
-mod db;
-mod models;
-mod schema;
-mod utils;
+pub(crate) mod api;
+pub(crate) mod db;
+pub(crate) mod models;
+pub(crate) mod schema;
+pub(crate) mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
