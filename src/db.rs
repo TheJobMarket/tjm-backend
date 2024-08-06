@@ -33,36 +33,26 @@ impl Database {
             .inner_join(companies)
             .load::<(Job, Company)>(&mut self.pool.get()?)?
             .into_iter()
-            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))
+            .map(|(_job, _company): (Job, Company)| JobRes::from_job(_job, _company))
             .collect())
     }
 
-    pub fn insert_job(&self, job: JobReq) -> Result<JobRes, Error> {
+    pub fn insert_job(&self, job_req: JobReq) -> Result<JobRes, Error> {
         use crate::schema::companies::dsl::*;
         use crate::schema::jobs::dsl::*;
 
         let conn = &mut self.pool.get()?;
         let _company = companies
-            .find(&job.company_id)
+            .find(&job_req.company_id)
             .first::<Company>(conn)
             .context("Company linked to job not found")?;
 
-        let _job = Job {
-            id: utils::generate_url_id(&job.title),
-            date_posted: None,
-            title: job.title,
-            description: job.description,
-            company_id: job.company_id,
-            pay: job.pay,
-            location: job.location,
-            remote: job.remote,
-            job_type: job.job_type,
-        };
+        let _job = Job::from_req(job_req);
 
         Ok(_job
             .insert_into(jobs)
             .get_result(conn)
-            .map(|j| JobRes::build_from(j, _company))?)
+            .map(|j| JobRes::from_job(j, _company))?)
     }
 
     pub fn find_job_by_id(&self, id: String) -> Result<JobRes, Error> {
@@ -73,7 +63,7 @@ impl Database {
             .inner_join(companies)
             .filter(jobs_id.eq(id))
             .first::<(Job, Company)>(&mut self.pool.get()?)
-            .map(|(_job, _company): (Job, Company)| JobRes::build_from(_job, _company))?)
+            .map(|(_job, _company): (Job, Company)| JobRes::from_job(_job, _company))?)
     }
 
     pub fn insert_company(&self, _company: CompanyReq) -> Result<Company, Error> {

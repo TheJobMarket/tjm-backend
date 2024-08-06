@@ -18,10 +18,15 @@ diesel::table! {
         title -> Varchar,
         description -> Nullable<Text>,
         company_id -> Varchar,
-        pay -> Nullable<Varchar>,
-        location -> Text,
-        remote -> Bool,
-        job_type -> Varchar,
+        active -> Bool,
+        application_url -> Nullable<Varchar>,
+        pay_min -> Nullable<Int4>,
+        pay_max -> Nullable<Int4>,
+        city -> Nullable<Varchar>,
+        country -> Nullable<Varchar>,
+        languages -> Nullable<Varchar>,
+        workplace -> Nullable<Varchar>,
+        job_type -> Nullable<Varchar>,
     }
 }
 
