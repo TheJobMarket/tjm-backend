@@ -108,12 +108,10 @@ impl Job {
 
     pub fn to_res(self, company: Company) -> JobRes {
 
-        let languages = self.languages
-            .unwrap_or("".into())
-            .trim()
-            .split(",")
-            .map(|l| l.to_owned())
-            .collect();
+        let languages: Vec<String> = match self.languages {
+            Some(str) => str.trim().split(",").map(|l| l.to_owned()).collect(),
+            None => vec![]
+        };
 
         JobRes {
             id: self.id,
