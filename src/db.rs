@@ -33,7 +33,7 @@ impl Database {
             .inner_join(companies)
             .load::<(Job, Company)>(&mut self.pool.get()?)?
             .into_iter()
-            .map(|(_job, _company): (Job, Company)| JobRes::from_job(_job, _company))
+            .map(|(_job, _company): (Job, Company)| _job.to_res(_company))
             .collect())
     }
 
@@ -52,7 +52,7 @@ impl Database {
         Ok(_job
             .insert_into(jobs)
             .get_result(conn)
-            .map(|j| JobRes::from_job(j, _company))?)
+            .map(|j: Job| j.to_res(_company))?)
     }
 
     pub fn find_job_by_id(&self, id: String) -> Result<JobRes, Error> {
@@ -63,7 +63,7 @@ impl Database {
             .inner_join(companies)
             .filter(jobs_id.eq(id))
             .first::<(Job, Company)>(&mut self.pool.get()?)
-            .map(|(_job, _company): (Job, Company)| JobRes::from_job(_job, _company))?)
+            .map(|(_job, _company): (Job, Company)| _job.to_res(_company))?)
     }
 
     pub fn insert_company(&self, _company: CompanyReq) -> Result<Company, Error> {

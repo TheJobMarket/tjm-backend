@@ -4,8 +4,6 @@ pub fn generate_url_id(base: &str) -> String {
     let mut alphabet: Vec<char> = ('0'..='9').collect();
     alphabet.extend('a'..='z');
 
-    println!("Alphabet is {:?}", alphabet);
-
     let unique_part: String = nanoid!(8, &alphabet);
 
     let mut url_id: String = base
@@ -16,8 +14,6 @@ pub fn generate_url_id(base: &str) -> String {
         .split_whitespace()
         .collect::<Vec<&str>>()
         .join("-");
-
-    println!("{url_id}");
 
     url_id.push('-');
     url_id.extend(unique_part.chars());
