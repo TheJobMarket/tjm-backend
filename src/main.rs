@@ -19,7 +19,7 @@ async fn main() -> std::io::Result<()> {
     println!("Listening on port {port}");
 
     HttpServer::new(move || App::new().service(api_routes()).app_data(db.clone()))
-        .bind(("127.0.0.1", port))?
+        .bind(("0.0.0.0", port))?
         .run()
         .await
 }
