@@ -2,7 +2,8 @@
 
 diesel::table! {
     companies (id) {
-        id -> Int4,
+        id -> Varchar,
+        date_added -> Nullable<Date>,
         name -> Varchar,
         website -> Nullable<Varchar>,
         logo_cid -> Nullable<Varchar>,
@@ -12,19 +13,24 @@ diesel::table! {
 
 diesel::table! {
     jobs (id) {
-        id -> Int4,
-        date_posted -> Date,
+        id -> Varchar,
+        date_posted -> Nullable<Date>,
         title -> Varchar,
         description -> Nullable<Text>,
-        company -> Int4,
-        pay -> Nullable<Varchar>,
-        job_location -> Text,
-        remote -> Bool,
-        job_type -> Varchar,
+        company_id -> Varchar,
+        active -> Bool,
+        application_url -> Nullable<Varchar>,
+        pay_min -> Nullable<Int4>,
+        pay_max -> Nullable<Int4>,
+        city -> Nullable<Varchar>,
+        country -> Nullable<Varchar>,
+        languages -> Nullable<Varchar>,
+        workplace -> Nullable<Varchar>,
+        job_type -> Nullable<Varchar>,
     }
 }
 
-diesel::joinable!(jobs -> companies (company));
+diesel::joinable!(jobs -> companies (company_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     companies,

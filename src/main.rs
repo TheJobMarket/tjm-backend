@@ -2,11 +2,13 @@ use crate::api::api_routes;
 use crate::db::Database;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+use crate::utils::generate_url_id;
 
-mod api;
-mod db;
-mod models;
-mod schema;
+pub(crate) mod api;
+pub(crate) mod db;
+pub(crate) mod models;
+pub(crate) mod schema;
+pub(crate) mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -17,7 +19,7 @@ async fn main() -> std::io::Result<()> {
     println!("Listening on port {port}");
 
     HttpServer::new(move || App::new().service(api_routes()).app_data(db.clone()))
-        .bind(("127.0.0.1", port))?
+        .bind(("0.0.0.0", port))?
         .run()
         .await
 }

@@ -1,12 +1,17 @@
 -- Your SQL goes here
 CREATE TABLE jobs (
-    id SERIAL PRIMARY KEY,
-    date_posted DATE DEFAULT CURRENT_DATE NOT NULL,
+    id VARCHAR PRIMARY KEY,
+    date_posted DATE DEFAULT CURRENT_DATE,
     title VARCHAR NOT NULL,
     description TEXT,
-    company INT REFERENCES companies(id) NOT NULL,
-    pay VARCHAR,
-    job_location TEXT NOT NULL,
-    remote BOOLEAN NOT NULL,
-    job_type VARCHAR NOT NULL
+    company_id VARCHAR REFERENCES companies(id) NOT NULL,
+    active BOOLEAN NOT NULL,
+    application_url VARCHAR,
+    pay_min INTEGER,
+    pay_max INTEGER,
+    city VARCHAR,
+    country VARCHAR,
+    languages VARCHAR,
+    workplace VARCHAR,
+    job_type VARCHAR
 )
