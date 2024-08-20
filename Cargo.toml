@@ -14,3 +14,4 @@ dotenvy = "0.15.7"
 env_logger = "0.11.3"
 nanoid = "0.4.0"
 serde = { version = "1.0.203", features = ["derive"] }
+log = "0.4.21"
