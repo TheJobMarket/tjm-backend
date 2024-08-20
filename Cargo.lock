@@ -1371,6 +1371,7 @@ dependencies = [
  "diesel",
  "dotenvy",
  "env_logger",
+ "log",
  "nanoid",
  "serde",
 ]
