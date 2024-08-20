@@ -1,13 +1,11 @@
-name: CI and Deployment
+name: Deployment
 on:
   push:
     branches:
       - main
-      - dev
   pull_request:
     branches:
       - main
-      - dev
 
 jobs:
   checks:
@@ -31,10 +29,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
-          script: whoami
-          # script: |
-          #   echo "Successfully connected"
-          #   cd Documents/GitHub/tjm-backend
-          #   git pull
-          #   docker-compose down
-          #   docker-compose up -d --build
+          script: |
+            echo "Successfully connected"
+            cd Documents/GitHub/tjm-backend
+            git pull
+            docker-compose down
+            docker-compose up -d --build
