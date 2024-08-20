@@ -23,7 +23,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: checks
-            
     steps:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -32,10 +31,10 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            echo "Successfully connected"
-            cd Documents/GitHub/tjm-backend
-            git pull
-            docker-compose down
-            docker-compose up -d --build
+          script: whoami
+          # script: |
+          #   echo "Successfully connected"
+          #   cd Documents/GitHub/tjm-backend
+          #   git pull
+          #   docker-compose down
+          #   docker-compose up -d --build
