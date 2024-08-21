@@ -1,31 +1,23 @@
-FROM rust:latest AS build
-
-# create a new empty shell project
-RUN USER=root cargo new --bin tjm-backend
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 WORKDIR /tjm-backend
 
-# copy over your manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# this build step will cache your dependencies
-RUN cargo build --release
-RUN rm src/*.rs
+FROM chef AS builder
+COPY --from=planner /tjm-backend/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin tjm-backend
 
-# copy your source tree
-COPY ./src ./src
+# We do not need the Rust toolchain to run the binary!
+FROM debian:bookworm-slim AS runtime
+WORKDIR /tjm-backend
+COPY --from=builder /tjm-backend/target/release/tjm-backend /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/tjm-backend"]
 
-# build for release
-RUN rm ./target/release/deps/tjm_backend*
-RUN cargo build --release
-
-# our final base
-FROM rust:latest
-
-# copy the build artifact from the build stage
-COPY --from=build /tjm-backend/target/release/tjm-backend .
-
-# set the startup command to run your binary
-CMD ["./tjm-backend"]
-
+RUN apt-get update && apt-get install postgresql -y
 EXPOSE 8080
