@@ -1,14 +1,9 @@
-name: CI and Deployment
+name: Production workflow
 on:
   push:
     branches:
       - main
-      - dev
-  pull_request:
-    branches:
-      - main
-      - dev
-
+      
 jobs:
   checks:
     name: Build and Test
@@ -23,7 +18,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: checks
-            
     steps:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -32,7 +26,6 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT }}
           script: |
             echo "Successfully connected"
             cd Documents/GitHub/tjm-backend
