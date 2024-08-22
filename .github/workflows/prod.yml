@@ -25,7 +25,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_PRIVATE_SSH_KEY }}
-          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             echo "Successfully connected"
             cd Documents/GitHub/tjm-backend
