@@ -20,4 +20,4 @@ COPY --from=builder /tjm-backend/target/release/tjm-backend /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/tjm-backend"]
 
 RUN apt-get update && apt-get install postgresql -y
-EXPOSE 8080
+EXPOSE 80

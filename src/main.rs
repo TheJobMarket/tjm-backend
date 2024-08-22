@@ -2,8 +2,6 @@ use crate::api::api_routes;
 use crate::db::Database;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use log::info;
-use crate::utils::generate_url_id;
 
 pub(crate) mod api;
 pub(crate) mod db;
