@@ -15,3 +15,7 @@ env_logger = "0.11.3"
 nanoid = "0.4.0"
 serde = { version = "1.0.203", features = ["derive"] }
 log = "0.4.21"
+thiserror = "1.0.63"
+aws-sdk-s3 = "1.46.0"
+image = "0.25.2"
+aws-config = "1.5.5"

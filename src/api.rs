@@ -1,4 +1,4 @@
-use crate::db::Database;
+use crate::db::{AppState, Database};
 use actix_web::web::Data;
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use actix_web::guard::Head;
@@ -30,8 +30,8 @@ async fn echo(req_body: String) -> impl Responder {
 }
 
 #[get("/jobs")]
-async fn get_jobs(db: Data<Database>) -> impl Responder {
-    match db.get_jobs() {
+async fn get_jobs(state: Data<AppState>) -> impl Responder {
+    match state.db.get_jobs() {
         Ok(jobs) => {
             HttpResponse::Ok()
                 .insert_header(
@@ -45,8 +45,8 @@ async fn get_jobs(db: Data<Database>) -> impl Responder {
 }
 
 #[get("/jobs/{id}")]
-async fn get_job_by_id(db: Data<Database>, job_id: web::Path<String>) -> impl Responder {
-    match db.find_job_by_id(job_id.into_inner()) {
+async fn get_job_by_id(state: Data<AppState>, job_id: web::Path<String>) -> impl Responder {
+    match state.db.find_job_by_id(job_id.into_inner()) {
         Ok(job) => {
             HttpResponse::Ok()
                 .insert_header(
@@ -60,24 +60,24 @@ async fn get_job_by_id(db: Data<Database>, job_id: web::Path<String>) -> impl Re
 }
 
 #[post("/jobs")]
-async fn create_job(db: Data<Database>, job: web::Json<JobReq>) -> impl Responder {
-    match db.insert_job(job.into_inner()) {
+async fn create_job(state: Data<AppState>, job: web::Json<JobReq>) -> impl Responder {
+    match state.db.insert_job(job.into_inner()) {
         Ok(job) => HttpResponse::Ok().json(job),
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
 
 #[get("/companies")]
-async fn get_companies(db: Data<Database>) -> impl Responder {
-    match db.get_companies() {
+async fn get_companies(state: Data<AppState>) -> impl Responder {
+    match state.db.get_companies() {
         Ok(companies) => HttpResponse::Ok().json(companies),
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
 
 #[post("/companies")]
-async fn create_company(db: Data<Database>, company: web::Json<CompanyReq>) -> impl Responder {
-    match db.insert_company(company.into_inner()) {
+async fn create_company(state: Data<AppState>, company: web::Json<CompanyReq>) -> impl Responder {
+    match state.db.insert_company(company.into_inner()) {
         Ok(company) => HttpResponse::Ok().json(company),
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
